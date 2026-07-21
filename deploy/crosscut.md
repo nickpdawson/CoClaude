@@ -41,6 +41,15 @@ sqlite3 data/coclaude.db                # state (host path; container sees /data
 - Cert #66: LE via **Cloudflare DNS-01** (same CF creds as hs.dzsec.net cert #65) — auto-renews in NPM.
 - Created via API with a temporary `coclaude-deploy@dzsec.net` admin (bcrypt+sqlite pattern from the Lapland runbook); **removed after** — user table is back to just administrator@dzsec.net.
 
+## Claude connector compatibility (critical)
+
+Claude custom connectors (Desktop + web) silently reject a FastMCP 2.14 server even when the whole handshake returns 200s (you'll see "not connected" + no tools). Three settings are required and are in the code — do not remove:
+- `FastMCP(..., include_fastmcp_meta=False)`
+- `@mcp.tool(output_schema=None)` on every tool
+- `app.run(..., json_response=True)`
+
+These make `tools/list` entries exactly `{name, description, inputSchema}`. If tools stop appearing after a FastMCP upgrade, re-check that the response carries no `outputSchema`/`_meta`.
+
 ## Gotchas
 
 - **CF proxied (orange):** idle streams cut ~100s (524). MCP POSTs fine. If Claude connector SSE flakes → flip CF record to DNS-only (grey), nothing else changes.
