@@ -1,0 +1,17 @@
+services:
+  coclaude:
+    build: .
+    container_name: coclaude
+    restart: unless-stopped
+    ports:
+      - "8788:8788"
+    env_file: .env
+    environment:
+      DB_PATH: /data/coclaude.db
+    volumes:
+      - ./data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8788/healthz')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
