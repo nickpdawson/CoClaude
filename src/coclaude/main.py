@@ -78,6 +78,24 @@ def build_app() -> FastMCP:
 
         return JSONResponse({"ok": True})
 
+    @mcp.custom_route("/", methods=["GET"])
+    async def root(request):
+        from starlette.responses import HTMLResponse
+
+        return HTMLResponse(
+            "<!doctype html><meta charset=utf-8>"
+            "<title>CoClaude</title>"
+            "<div style='font-family:-apple-system,system-ui,sans-serif;max-width:32rem;"
+            "margin:4rem auto;padding:0 1rem;color:#1a1a18'>"
+            "<h1>CoClaude</h1>"
+            "<p>This is an MCP server, not a website. Connect it from your AI assistant "
+            "as a custom connector using the URL "
+            "<code>" + s.public_url.rstrip("/") + "/mcp</code>, then sign in with the "
+            "invite code you were emailed.</p>"
+            "<p style='color:#888;font-size:.85rem'>Have an invite but no connector yet? "
+            "In Claude: Settings &rarr; Connectors &rarr; Add custom connector.</p></div>"
+        )
+
     return mcp
 
 
