@@ -15,7 +15,7 @@ def _project(conn, ref: str):
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def create_project(name: str, description: str = "", instructions: str = "") -> dict:
         """(Owner only) Create a project — a named scope of docs + collaborators.
         `instructions` are per-project working conventions surfaced to every
@@ -29,7 +29,7 @@ def register(mcp: FastMCP) -> None:
             )
         return {"project_id": pid, "name": name}
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def create_doc(
         project: str,
         title: str,
@@ -55,7 +55,7 @@ def register(mcp: FastMCP) -> None:
             )
         return {"doc_id": did, "title": title, "url": docs_write.doc_url(google_doc_id)}
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def add_collaborator(
         email: str,
         display_name: str,
@@ -105,7 +105,7 @@ def register(mcp: FastMCP) -> None:
             **({"email_error": email_error} if email_error else {}),
         }
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def remove_collaborator(email: str) -> str:
         """(Owner only) Disable a collaborator: revokes all their tokens and
         project grants immediately. (Their Google account access to already-
@@ -127,7 +127,7 @@ def register(mcp: FastMCP) -> None:
             )
         return f"Disabled {email} and revoked their access."
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def set_project_instructions(project: str, instructions: str) -> str:
         """(Owner only) Set/replace a project's working conventions (shown to
         every collaborator's Claude in read_project, and baked into the Overview
@@ -140,7 +140,7 @@ def register(mcp: FastMCP) -> None:
             )
         return f"Instructions updated for {p['name']!r}."
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def list_collaborators(project: str | None = None) -> list[dict]:
         """(Owner only) List collaborators (optionally filtered to one project)
         with their grants and status."""

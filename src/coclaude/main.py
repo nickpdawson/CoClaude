@@ -4,6 +4,7 @@ import logging
 import threading
 
 from fastmcp import FastMCP
+from fastmcp.server.middleware import Middleware
 
 from . import db
 from .auth import invites
@@ -62,7 +63,36 @@ def build_app() -> FastMCP:
     housekeeping()
 
     provider = CoClaudeOAuthProvider(s.public_url)
-    mcp = FastMCP(name="CoClaude", instructions=INSTRUCTIONS, auth=provider)
+    # include_fastmcp_meta=False keeps tools/list to the spec-minimal shape
+    # (name/description/inputSchema) — no _meta, no outputSchema — which is what
+    # Claude Desktop's connector validator accepts.
+    mcp = FastMCP(
+        name="CoClaude",
+        instructions=INSTRUCTIONS,
+        auth=provider,
+        include_fastmcp_meta=False,
+    )
+
+    class WireLog(Middleware):
+        async def on_message(self, context, call_next):
+            method = getattr(context, "method", "?")
+            src = getattr(context, "source", "?")
+            try:
+                result = await call_next(context)
+                rtype = type(result).__name__
+                extra = ""
+                # count tools/prompts/resources for list results
+                for attr in ("tools", "prompts", "resources"):
+                    items = getattr(result, attr, None)
+                    if items is not None:
+                        extra = f" {attr}={len(items)}"
+                log.info("WIRE %s src=%s -> %s%s", method, src, rtype, extra)
+                return result
+            except Exception as exc:  # noqa
+                log.warning("WIRE %s src=%s -> ERROR %s: %s", method, src, type(exc).__name__, exc)
+                raise
+
+    mcp.add_middleware(WireLog())
 
     collaborator.register(mcp)
     admin.register(mcp)
@@ -103,7 +133,9 @@ def run() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
     s = settings()
     app = build_app()
-    app.run(transport="http", host=s.host, port=s.port)
+    # json_response=True returns POST results as application/json instead of an
+    # SSE stream — Claude.ai's custom connector handshake expects plain JSON.
+    app.run(transport="http", host=s.host, port=s.port, json_response=True)
 
 
 if __name__ == "__main__":

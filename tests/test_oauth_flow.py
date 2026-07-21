@@ -249,7 +249,9 @@ def test_acl_enforced(server, invite_code):
         )
         async with Client(transport) as client:
             res = await client.call_tool("list_projects", {})
-            assert res.data == [] or res.structured_content in ({"result": []}, [])
+            # output_schema disabled -> result comes back as text content (JSON "[]")
+            text = res.content[0].text if res.content else ""
+            assert res.data in ([], None) and text.strip() in ("[]", "")
             try:
                 await client.call_tool("create_project", {"name": "sneaky"})
                 raise AssertionError("non-owner created a project")

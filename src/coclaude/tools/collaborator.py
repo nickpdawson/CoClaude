@@ -43,7 +43,7 @@ def _doc_payload(conn, me, doc_row) -> dict:
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def list_projects() -> list[dict]:
         """List the projects you have access to, with their docs."""
         with db.tx() as conn:
@@ -70,7 +70,7 @@ def register(mcp: FastMCP) -> None:
                 )
             return out
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def read_project(project: str) -> dict:
         """Catch up on a project: its working conventions, every doc's current
         content, and whether each doc changed since you last read it.
@@ -96,7 +96,7 @@ def register(mcp: FastMCP) -> None:
                 "docs": [_doc_payload(conn, me, d) for d in docs],
             }
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def read_doc(doc_id: str) -> dict:
         """Read one doc's full current content (rendered as markdown, with
         section names and change-since-last-read info)."""
@@ -105,7 +105,7 @@ def register(mcp: FastMCP) -> None:
             d = acl.doc_in_granted_project(conn, me, doc_id)
             return _doc_payload(conn, me, d)
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def log_entry(doc_id: str, text: str, section: str = "Live", tags: list[str] | None = None) -> str:
         """Append an entry to a doc section (default: Live, the brainstorm layer).
         The entry is automatically stamped with the caller's initials and date.
@@ -117,7 +117,7 @@ def register(mcp: FastMCP) -> None:
         docs_write.append_to_section(d["google_doc_id"], section, entry)
         return f"Logged to {section!r} in {d['title']!r}: {entry}"
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def edit_text(doc_id: str, find: str, replace: str, occurrence: int = 1) -> str:
         """Replace exact text in a doc. Prefer strike() + log_entry() to preserve
         history; use this only for typos or updating your own recent entries."""
@@ -127,7 +127,7 @@ def register(mcp: FastMCP) -> None:
         docs_write.replace_text(d["google_doc_id"], find, replace, occurrence)
         return f"Replaced occurrence {occurrence} of {find!r} in {d['title']!r}."
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def strike(doc_id: str, text: str, occurrence: int = 1) -> str:
         """Strike through exact text in a doc (retire it without deleting —
         history stays visible)."""
@@ -137,7 +137,7 @@ def register(mcp: FastMCP) -> None:
         docs_write.strike_text(d["google_doc_id"], text, occurrence)
         return f"Struck through {text!r} in {d['title']!r}."
 
-    @mcp.tool
+    @mcp.tool(output_schema=None)
     def promote(
         doc_id: str,
         text: str,

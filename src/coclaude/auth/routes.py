@@ -5,6 +5,7 @@ invite code (first connection; sets a password for reconnects) or an existing
 email + password.
 """
 
+import logging
 from html import escape
 from urllib.parse import urlencode
 
@@ -14,6 +15,8 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from .. import db
 from . import invites
 from .provider import create_auth_code_for_txn
+
+log = logging.getLogger("coclaude.login")
 
 _PAGE = """<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -84,13 +87,19 @@ async def login_post(request: Request):
     if not txn:
         return HTMLResponse("<p>Missing login session. Start again from Claude.</p>", status_code=400)
 
+    log.info(
+        "login attempt: invite_code=%s new_pw_len=%d email=%s pw_given=%s",
+        bool(invite_code), len(new_password), bool(email), bool(password),
+    )
     collaborator_id = None
-    if invite_code:
-        if len(new_password) < 8:
-            return _page(txn, "Choose a password of at least 8 characters along with your invite code.")
+    # Invite path only when the invite code AND a new password are both given.
+    # If the invite password is blank but returning email+password are present
+    # (common browser-autofill case), fall through to the returning path.
+    if invite_code and len(new_password) >= 8:
         with db.tx() as conn:
             row = invites.redeem_invite(conn, invite_code)
             if row is None:
+                log.info("login reject: invite invalid/expired/used")
                 return _page(txn, "That invite code is invalid, expired, or already used.")
             invites.set_password(conn, row["id"], new_password)
             collaborator_id = row["id"]
@@ -100,10 +109,20 @@ async def login_post(request: Request):
                 "SELECT * FROM collaborators WHERE email = ? AND status = 'active'", (email,)
             ).fetchone()
         if row is None or not invites.check_password(row, password):
+            log.info("login reject: email/password not recognized (email known=%s)", bool(row))
             return _page(txn, "Email or password not recognized.")
         collaborator_id = row["id"]
+    elif invite_code:
+        log.info("login reject: invite given but password blank/short (%d)", len(new_password))
+        return _page(
+            txn,
+            "Type a password of at least 8 characters in the 'Choose a password' field "
+            "directly under your invite code, then Connect.",
+        )
     else:
+        log.info("login reject: no usable fields submitted")
         return _page(txn, "Enter an invite code (plus a new password), or your email and password.")
+    log.info("login success -> minting auth code")
 
     try:
         code, redirect_uri, state = create_auth_code_for_txn(txn, collaborator_id)
