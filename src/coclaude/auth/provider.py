@@ -104,7 +104,7 @@ class CoClaudeOAuthProvider(OAuthProvider):
             code_challenge=row["code_challenge"],
             redirect_uri=AnyUrl(row["redirect_uri"]),
             redirect_uri_provided_explicitly=bool(row["redirect_uri_explicit"]),
-            resource=AnyUrl(row["resource"]) if row["resource"] else None,
+            resource=row["resource"],  # SDK field is str | None; do NOT wrap in AnyUrl
             subject=row["collaborator_id"],
         )
 

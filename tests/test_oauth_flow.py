@@ -123,6 +123,7 @@ def test_full_flow(server, invite_code):
             "state": "st4te",
             "code_challenge": challenge,
             "code_challenge_method": "S256",
+            "resource": f"{server}/mcp",  # Claude sends RFC 8707 resource; must round-trip
         },
         follow_redirects=False,
     )
