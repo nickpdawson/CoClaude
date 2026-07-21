@@ -6,7 +6,15 @@ from googleapiclient.discovery import build
 from .. import db
 from ..config import settings
 
-SCOPES = ["https://www.googleapis.com/auth/drive.file"]
+# documents (sensitive) = read/write content of ANY Doc the owner can access, incl.
+# pre-existing/externally-created docs. drive (restricted) = metadata for change-
+# tracking + sharing those docs to collaborators. Both are configured on the consent
+# screen and grantable by the owner behind the "unverified app" warning. Broader than
+# drive.file by deliberate owner choice so CoClaude can manage docs it did not create.
+SCOPES = [
+    "https://www.googleapis.com/auth/documents",
+    "https://www.googleapis.com/auth/drive",
+]
 TOKEN_URI = "https://oauth2.googleapis.com/token"
 
 
