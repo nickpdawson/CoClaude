@@ -73,26 +73,16 @@ def build_app() -> FastMCP:
         include_fastmcp_meta=False,
     )
 
-    class WireLog(Middleware):
+    class ErrorLog(Middleware):
         async def on_message(self, context, call_next):
-            method = getattr(context, "method", "?")
-            src = getattr(context, "source", "?")
             try:
-                result = await call_next(context)
-                rtype = type(result).__name__
-                extra = ""
-                # count tools/prompts/resources for list results
-                for attr in ("tools", "prompts", "resources"):
-                    items = getattr(result, attr, None)
-                    if items is not None:
-                        extra = f" {attr}={len(items)}"
-                log.info("WIRE %s src=%s -> %s%s", method, src, rtype, extra)
-                return result
+                return await call_next(context)
             except Exception as exc:  # noqa
-                log.warning("WIRE %s src=%s -> ERROR %s: %s", method, src, type(exc).__name__, exc)
+                log.warning("MCP %s -> ERROR %s: %s", getattr(context, "method", "?"),
+                            type(exc).__name__, exc)
                 raise
 
-    mcp.add_middleware(WireLog())
+    mcp.add_middleware(ErrorLog())
 
     collaborator.register(mcp)
     admin.register(mcp)
@@ -134,7 +124,7 @@ def run() -> None:
     s = settings()
     app = build_app()
     # json_response=True returns POST results as application/json instead of an
-    # SSE stream — Claude.ai's custom connector handshake expects plain JSON.
+    # SSE stream — Claude's custom connector handshake expects plain JSON.
     app.run(transport="http", host=s.host, port=s.port, json_response=True)
 
 

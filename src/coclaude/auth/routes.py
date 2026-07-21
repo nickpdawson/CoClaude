@@ -87,10 +87,6 @@ async def login_post(request: Request):
     if not txn:
         return HTMLResponse("<p>Missing login session. Start again from Claude.</p>", status_code=400)
 
-    log.info(
-        "login attempt: invite_code=%s new_pw_len=%d email=%s pw_given=%s",
-        bool(invite_code), len(new_password), bool(email), bool(password),
-    )
     collaborator_id = None
     # Invite path only when the invite code AND a new password are both given.
     # If the invite password is blank but returning email+password are present
