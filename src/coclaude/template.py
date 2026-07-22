@@ -14,20 +14,34 @@ _OVERVIEW_BODY = """\
 
 How this doc works — instructions for any AI chat reading it
 
-This document is shared context for humans co-working through their own AI \
+This document is shared context for people co-working through their own AI \
 assistants (via the CoClaude connector). If you are an AI reading this, you are \
-a librarian for this doc, not just a reader. Follow these conventions:
+a librarian for this doc, not just a reader.
 
-Live is the raw brainstorm layer. Append new ideas there, stamped \
-[<initials> <date>] and tagged [idea], [maybe], [?], or [wild]. Never prune it.
+People use this doc in two ways, sometimes both at once: to open things up \
+(explore, gather ideas, think out loud) and to settle things (weigh options, \
+make a call). Different collaborators may be in different modes at the same \
+time. Read which mode the person you're helping is in and match it — help \
+exploration widen without forcing it toward a decision, and help decisions \
+converge only when someone is actually ready to make one. When in doubt, ask \
+rather than pushing to closure.
 
-Deciding holds items that need a human call before they're settled. Move an idea \
-here when it needs resolution.
+The sections are places to put things, not a pipeline every idea must pass \
+through:
 
-Decided is the locked layer: settled calls with a one-line rationale. Only \
-promote something when the humans have clearly decided.
+Live is the open layer — brainstorms, notes, questions, half-formed ideas. \
+Append new material here, stamped [<initials> <date>] and tagged [idea], \
+[maybe], [?], or [wild]. Plenty of good thinking lives here indefinitely; it \
+doesn't have to go anywhere. Never prune it.
 
-When a user says "log it", file their new material into the right sections. \
+Deciding holds things someone wants to resolve that need a human call. Move an \
+idea here only when there's real intent to settle it — not just because it has \
+been sitting in Live.
+
+Decided is the settled layer: calls that have been made, each with a one-line \
+rationale. Only promote something once the humans have clearly decided.
+
+When a user says "log it", file their new material into the right section. \
 When a user says "catch me up", read the doc and summarize what changed since \
 they last looked, section by section.
 

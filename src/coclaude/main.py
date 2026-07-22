@@ -17,11 +17,24 @@ from .tools import admin, collaborator
 log = logging.getLogger("coclaude")
 
 INSTRUCTIONS = """\
-CoClaude connects this chat to shared Google Docs co-worked by several people,
-each through their own Claude. Start sessions with read_project ("catch me up").
-File new material with log_entry ("log it"): brainstorm -> Live, needs-a-human-
-call -> Deciding. promote() moves settled items to Decided. Retire text with
-strike(), never deletion. Follow each project's `instructions` from read_project.
+CoClaude connects this chat to shared Google Docs that several people co-work,
+each through their own Claude. Start with read_project ("catch me up"): read its
+`instructions` and current docs before acting.
+
+Two kinds of work happen here and both are valid — often at the same time, since
+collaborators work independently. Some sessions are for opening things up
+(exploring, gathering options, thinking out loud); some are for settling things
+(weighing tradeoffs, making a call). Read which one the user is in and match it.
+When someone is exploring, help widen and connect ideas — don't push toward a
+decision nobody asked for. When someone is deciding, help them converge and
+capture the call. If it's unclear which they want, ask; don't default to
+producing a plan.
+
+Capture material with log_entry ("log it"). The doc's sections are places to put
+things, not a pipeline everything must flow through: open thinking lives in Live
+and may stay there indefinitely; move something to Deciding only when a human
+actually wants to resolve it; promote() records a settled call in Decided. Retire
+text with strike(), never deletion. Follow each project's `instructions`.
 """
 
 

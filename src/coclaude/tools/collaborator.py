@@ -107,9 +107,11 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(output_schema=None)
     def log_entry(doc_id: str, text: str, section: str = "Live", tags: list[str] | None = None) -> str:
-        """Append an entry to a doc section (default: Live, the brainstorm layer).
-        The entry is automatically stamped with the caller's initials and date.
-        Tags like idea/maybe/?/wild are appended as [tag] markers."""
+        """Append an entry to a doc section (default: Live, the open working
+        layer for ideas, notes, and questions — not everything has to move on
+        from there). The entry is automatically stamped with the caller's
+        initials and date. Tags like idea/maybe/?/wild are appended as [tag]
+        markers."""
         with db.tx() as conn:
             me = acl.current_collaborator(conn)
             d = acl.doc_in_granted_project(conn, me, doc_id)

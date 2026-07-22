@@ -1,4 +1,11 @@
-"""Google API services built from the single owner refresh token (drive.file scope)."""
+"""Google API services built from the single owner refresh token.
+
+Scope is `documents` + `drive` (see SCOPES below) so CoClaude can work with
+pre-existing docs the owner points it at, not only ones it created itself. A
+self-hoster who only ever wants CoClaude to create and manage its own docs can
+narrow SCOPES to `drive.file` (and skip the sensitive/restricted-scope consent
+verification friction) — the create_doc/read/write paths all work under it.
+"""
 
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
